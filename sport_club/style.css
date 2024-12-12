@@ -1,0 +1,326 @@
+
+
+/* Responsive Input */
+@media (min-width: 768px) {
+    .news-input {
+        width: 50%;
+    }
+}
+
+@media (max-width: 767px) {
+    .news-input {
+        width: 100%; /* Full-width on smaller screens */
+    }
+}
+
+
+/* Box Section Specific Styles */
+.box-section {
+    max-width: 90%; /* Slightly reduce the width of the entire section */
+    margin: 0 auto; /* Center the section */
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+/* Card Styling */
+.card {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Ensure cards stretch to take the full height of the container */
+    padding: 1rem; /* Slight padding inside cards for a compact look */
+    margin: 0.5rem 0.5rem; /* Reduced spacing between cards */
+}
+
+.card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25); /* Stronger shadow on hover */
+}
+
+/* Custom Text and Button Colors */
+.text-primary-custom {
+    color: #ffc107; /* Custom primary text color */
+}
+
+.btn-primary-custom {
+    background-color: #ffc107;
+    border-color: #ffc107;
+}
+
+.btn-primary-custom:hover {
+    background-color: #e0a800; /* Darker yellow for button hover */
+    border-color: #e0a800;
+}
+
+/* Custom style for "Read More" buttons */
+.btn-read-more {
+    width: auto; /* Button adjusts based on content */
+    max-width: 150px; /* Set a max width for uniformity */
+    margin: 0 auto; /* Center the button horizontally */
+    padding-left: 20px; /* Adjust padding for better spacing */
+    padding-right: 20px;
+}
+
+
+/* Fade-In Effect */
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease-in, transform 0.5s ease-in;
+}
+
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0); /* Element slides up as it fades in */
+}
+
+/* Flexbox for Equal Height Cards */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: stretch; /* Ensure equal height cards */
+}
+
+.col-md-4 {
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem; /* Optional padding between cards */
+}
+
+.card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Ensure consistent spacing */
+}
+
+/* Card Body Styling */
+.card-body {
+    min-height: 280px; /* Slightly reduced min height */
+    display: flex;
+    flex-direction: column; /* Push content to top and bottom */
+    padding: 1.5rem; /* Adjusted padding inside cards */
+}
+
+/* Ensure "Read More" button stays at the bottom */
+.card-body .btn {
+    margin-top: auto; /* Push button to the bottom */
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .box-section {
+        max-width: 95%;
+    }
+    .row {
+        display: block; /* Stack cards vertically on smaller screens */
+    }
+    .card-body {
+        padding: 1rem; /* Smaller padding for compact screens */
+    }
+}
+
+@media (max-width: 576px) {
+    .card-body {
+        padding: 0.8rem; /* Further reduced padding on small screens */
+    }
+}
+
+/* Additional Styling */
+.card {
+    margin-bottom: 1rem; /* Space between cards */
+}
+
+/* General Styling */
+.align-container {
+    margin-left: auto;
+    margin-right: auto;
+    
+}
+
+.align-container-div {
+  border-radius: 40px;
+}
+
+/* Rounded Borders */
+input.form-control, select.form-select, button.btn {
+    border-radius: 10px;
+    height: 45px;
+}
+
+/* Center Align Rows */
+.row.g-3 > div {
+    display: flex;
+    justify-content: center;
+}
+
+/* Search Bar Styling */
+.input-group input.form-control {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+.input-group button.btn {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+
+/* Responsive Centering */
+@media (max-width: 768px) {
+    .row.g-3 {
+        justify-content: center !important;
+    }
+}
+
+.list-group-item {
+    transition: all 0.3s ease-in-out;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa; /* Slightly lighter background */
+    transform: scale(1.02); /* Subtle zoom effect */
+}
+
+.ratio iframe {
+    border-radius: 8px;
+}
+
+/* Card Hover Effect */
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Image Styling */
+.card-img-top {
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+  
+  .align-icon {
+    vertical-align: middle; /* Align icon vertically with text */
+    line-height: 1; /* Adjust line height to match text alignment */
+    position: relative; /* Allows for fine-tuning with top positioning */
+    top: -2px; /* Adjust as needed to align with text */
+  }
+  
+  .navbar-nav.mx-auto {
+    justify-content: center; /* Explicitly center links */
+    flex-grow: 1;           /* Ensure the middle section grows */
+  }
+  
+  .navbar-brand {
+    margin-right: auto; /* Push the brand to the far left */
+  }
+  
+  .nav-item {
+    margin: 0 10px; /* Optional: Add spacing between items */
+  }
+
+
+
+ /*news*/
+
+  .news-header {
+    background: url('news-banner.jpg') no-repeat center center/cover;
+    color: white;
+    text-align: center;
+    padding: 100px 20px;
+  }
+
+
+
+  /* Core Values Section Styling */
+.core-values .col-md-4 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.core-values .col-md-4 i {
+  font-size: 3rem; /* Increase icon size */
+  color: #ffc107; /* Set icon color to match your theme */
+  margin-bottom: 1rem;
+}
+
+.core-values .col-md-4 h5 {
+  font-size: 1.25rem;
+  color: #ffffff;
+  margin-bottom: 1rem;
+}
+
+.core-values .col-md-4 p {
+  color: #cccccc;
+}
+
+
+
+
+
+/* General Styles for Text and Alignment */
+section {
+  padding: 50px 0; /* Add consistent padding for all sections */
+}
+
+h3.text-warning {
+  font-size: 2rem; /* Increase font size for section headings */
+  margin-bottom: 1.5rem; /* Space below the heading */
+}
+
+p {
+  font-size: 1.1rem;
+  color: #ddd; /* Light color for readability */
+}
+
+/* Mission & Vision Sections */
+.mission-section, .vision-section {
+  background-color: #343a40; /* Dark background for consistency */
+}
+
+.mission-section p, .vision-section p {
+  max-width: 800px;
+  margin: 0 auto;
+  line-height: 1.6; /* Improve line spacing for readability */
+}
+
+
+/* Adjusting button and badge layout for small screens */
+.list-group-item {
+    display: flex;
+    flex-direction: column-reverse; /* Stack vertically on small screens */
+    align-items: flex-start; /* Align items to the start */
+  }
+  
+  .flex-sm-row {
+    flex-direction: row; /* Revert to row layout on medium and larger screens */
+  }
+  
+  .w-100 {
+    width: 100%; /* Ensure full width on small screens for the badge and button */
+  }
+  
+  .mt-2 {
+    margin-top: 0.5rem !important; /* Add some margin between badge and button */
+  }
+  
+  .mt-sm-0 {
+    margin-top: 0 !important; /* Remove the margin on medium screens and above */
+  }
+  
+  .btn-sm {
+    width: auto !important; /* Ensure button adapts to its content */
+  }
+  
+  .badge-success {
+    margin-bottom: 0; /* Remove extra spacing below the badge on small screens */
+  }
+  
