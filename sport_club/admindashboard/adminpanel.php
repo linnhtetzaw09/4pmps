@@ -120,6 +120,13 @@ foreach ($allRegistrations as $key => $register) {
             font-size: 14px; 
         }
 
+        #registrationsChart {
+    max-width: 100%; /* Ensure the chart takes up full width */
+    height: auto; /* Maintain aspect ratio */
+    max-height: 400px; /* Set a maximum height to avoid large sizes on smaller screens */
+}
+
+
     </style>
 </head>
 <body>
@@ -367,10 +374,13 @@ foreach ($allRegistrations as $key => $register) {
                 </div>
             </div>
 
-
-
-
 </section>
+
+            <div class="container mb-5">
+                <h1 class="text-center mb-3">Text U want to give title </h1>
+                <canvas id="registrationsChart"></canvas>
+            </div>
+
 
   <!--footer -->
   <footer class=" p-5 bg-dark text-white text-center position-relative">
@@ -538,6 +548,7 @@ foreach ($allRegistrations as $key => $register) {
      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
       crossorigin="anonymous"></script>
       <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 
       <script>
@@ -651,7 +662,6 @@ $(document).on('click', '.remove-btn', function() {
     }
 });
 
-
 $(document).on('click', '.btn-approve', function () {
     const registrationId = $(this).data('id');
 
@@ -696,7 +706,51 @@ $(document).on('click', '.btn-reject', function () {
     });
 });
 
+// Utility function to generate random colors
+function getRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
 
+// Your Chart.js code...
+document.addEventListener('DOMContentLoaded', function () {
+    fetch('chart.php')
+        .then(response => response.json())
+        .then(data => {
+            const labels = data.map(item => item.event_name); // Event names
+            const counts = data.map(item => item.registration_count); // Registration counts
+            
+            // Use random colors for the background of the bars
+            const ctx = document.getElementById('registrationsChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels, // Event names
+                    datasets: [{
+                        label: 'Registrations',
+                        data: counts,
+                        backgroundColor: labels.map(() => getRandomColor()), // Random colors for bars
+                        borderColor: 'rgba(0, 0, 0, 1)', 
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => console.error('Error fetching chart data:', error));
+});
 
 
       </script>
