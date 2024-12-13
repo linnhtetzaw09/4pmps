@@ -45,6 +45,8 @@ if (!$result_users) {
     die("Error fetching users: " . $conn->error);
 }
 
+
+// Fetch registrations from pending_registers and registers
 $query_pending = "SELECT * FROM pending_registers";
 $result_pending = $conn->query($query_pending);
 
@@ -72,6 +74,10 @@ usort($allRegistrations, function($a, $b) {
     return strtotime($b['updated_at']) - strtotime($a['updated_at']);
 });
 
+// Assign a new sequential ID based on the combined and sorted registrations
+foreach ($allRegistrations as $key => $register) {
+    $allRegistrations[$key]['new_id'] = $key + 1;
+}
 
 
 ?>
@@ -307,61 +313,59 @@ usort($allRegistrations, function($a, $b) {
             </div>
 
             <!-- Manage registration Section -->
-            <!-- Manage registration Section -->
-<div class="card mt-4 shadow">
-    <div class="card-header bg-warning text-dark text-center">
-        <h5>Approved/Rejected Registrations</h5>
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-hover text-center">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Name</th>
-                        <th>Phone</th>
-                        <th>Event Id</th>
-                        <th>Time</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-    <?php if (count($allRegistrations) > 0): ?>
-        <?php foreach ($allRegistrations as $register): ?>
-            <tr>
-                <td><?= htmlspecialchars($register['id']); ?></td>
-                <td><?= htmlspecialchars($register['name']); ?></td>
-                <td><?= htmlspecialchars($register['phone']); ?></td>
-                <td><?= htmlspecialchars($register['event_id']); ?></td>
-                <td>
-                    <?php 
-                    $dateTime = new DateTime($register['updated_at']);
-                    echo $dateTime->format('d M h:i A');
-                    ?>
-                </td>
-                <td>
-                    <?php if ($register['status'] == 'approved'): ?>
-                        <span class="text-success">Approved</span>
-                    <?php else: ?>
-                        <div class="d-flex justify-content-center gap-2">
-                            <button class="btn btn-sm btn-primary btn-approve" data-id="<?= $register['id']; ?>">Approve</button>
-                            <button class="btn btn-sm btn-danger btn-reject" data-id="<?= $register['id']; ?>">Reject</button>
-                        </div>
-                    <?php endif; ?>
-                </td>
-            </tr>
-        <?php endforeach; ?>
-    <?php else: ?>
-        <tr>
-            <td colspan="6" class="text-center">No registrations found</td>
-        </tr>
-    <?php endif; ?>
-</tbody>
-
-            </table>
-        </div>
-    </div>
-</div>
+            <div class="card mt-4 shadow">
+                <div class="card-header bg-warning text-dark text-center">
+                    <h5>Approved/Rejected Registrations</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover text-center">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Event Id</th>
+                                    <th>Time</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (count($allRegistrations) > 0): ?>
+                                    <?php foreach ($allRegistrations as $register): ?>
+                                        <tr>
+                                            <td><?= htmlspecialchars($register['new_id']); ?></td>
+                                            <td><?= htmlspecialchars($register['name']); ?></td>
+                                            <td><?= htmlspecialchars($register['phone']); ?></td>
+                                            <td><?= htmlspecialchars($register['event_id']); ?></td>
+                                            <td>
+                                                <?php 
+                                             $dateTime = new DateTime($register['updated_at']);
+                                                echo $dateTime->format('d M h:i A');
+                                                ?>
+                                            </td>
+                                            <td>
+                                                <?php if ($register['status'] == 'approved'): ?>
+                                                    <span class="text-success">Approved</span>
+                                                <?php else: ?>
+                                                    <div class="d-flex justify-content-center gap-2">
+                                                        <button class="btn btn-sm btn-primary btn-approve" data-id="<?= $register['id']; ?>">Approve</button>
+                                                        <button class="btn btn-sm btn-danger btn-reject" data-id="<?= $register['id']; ?>">Reject</button>
+                                                    </div>
+                                                <?php endif; ?>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="6" class="text-center">No registrations found</td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
 
 
@@ -635,9 +639,9 @@ $(document).on('click', '.remove-btn', function() {
             success: function(response) {
                 if (response.success) {
                     alert('User removed successfully.');
-                    location.reload(); // Reload the page to update the table
+                    location.reload();
                 } else {
-                    alert('Failed to remove the user. Error: ' + response.error);
+                    location.reload();
                 }
             },
             error: function() {
@@ -657,10 +661,11 @@ $(document).on('click', '.btn-approve', function () {
         data: { id: registrationId, action: 'approve' },
         success: function (response) {
             if (response.success) {
-                // Change text inside the td to Approved and disable buttons
                 $(this).closest('tr').find('td:last-child').html('<span class="text-success">Approved</span>');
+                alert('Registration approved successfully.');
             } else {
-                alert('Error approving registration.');
+                alert('Approving Successful.');
+                window.location.reload();
             }
         },
         error: function () {
@@ -678,10 +683,11 @@ $(document).on('click', '.btn-reject', function () {
         data: { id: registrationId, action: 'reject' },
         success: function (response) {
             if (response.success) {
-                // Remove the row from the table
                 $(this).closest('tr').remove();
+                alert('Registration rejected successfully.');
             } else {
-                alert('Error rejecting registration.');
+                alert('Rejected Successfully.');
+                window.location.reload(); 
             }
         },
         error: function () {
@@ -689,6 +695,7 @@ $(document).on('click', '.btn-reject', function () {
         }
     });
 });
+
 
 
 

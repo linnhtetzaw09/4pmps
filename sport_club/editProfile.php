@@ -115,6 +115,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <li class="nav-item"><a href="news.php" class="nav-link">News & Announcements</a></li>
                 <li class="nav-item"><a href="about_us.php" class="nav-link">About Us</a></li>
                 <li class="nav-item"><a href="contact_us.php" class="nav-link">Contact Us</a></li>
+                <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1): ?>
+                    <li class="nav-item"><a href="./admindashboard/adminpanel.php" class="nav-link">Dashboard</a></li>
+                <?php endif; ?>
             </ul>
             <ul class="navbar-nav">
                 <?php if (isset($_SESSION['name'])): ?>
@@ -139,7 +142,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </div>
 </nav>
-
   <!-- Profile Header -->
   <header class="py-5 bg-light text-center">
     <h1>Welcome, <span class="text-warning"><?php echo $user['name']; ?></span></h1>

@@ -2,10 +2,12 @@
 session_start();
 
 // Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
-}
+// if (!isset($_SESSION['user_id'])) {
+//     header("Location: login.php");
+//     exit();
+// }
+
+$isLoggedIn = isset($_SESSION['user_id']);
 
 ?>
 
@@ -365,38 +367,44 @@ if (!isset($_SESSION['user_id'])) {
 <!-- Modal for Registration -->
 <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-          <div class="modal-header">
-              <h5 class="modal-title text-dark" id="registerModalLabel">Register</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-              <form id="registerForm" method="POST" action="register.php">
-                  <!-- Hidden input for event_id -->
-                  <input type="hidden" name="event_id" id="event_id">
-
-                  <div class="mb-3">
-                      <label for="name" class="form-label text-dark">Full Name</label>
-                      <input type="text" class="form-control" id="name" name="name" required placeholder="Enter your name">
-                  </div>
-                  <div class="mb-3">
-                      <label for="age" class="form-label text-dark">Age</label>
-                      <input type="number" class="form-control" id="age" name="age" required placeholder="Enter your age">
-                  </div>
-                  <div class="mb-3">
-                      <label for="phone" class="form-label text-dark">Phone</label>
-                      <input type="text" class="form-control" id="phone" name="phone" required placeholder="Enter your phone">
-                  </div>
-                  <div class="mb-3">
-                      <label for="email" class="form-label text-dark">Email Address</label>
-                      <input type="email" class="form-control" id="email" name="email" required placeholder="Enter your email">
-                  </div>
-                  <button type="submit" class="btn bg-warning text-dark w-100">Submit Registration</button>
-              </form>
-          </div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-dark" id="registerModalLabel">Register</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
+      <div class="modal-body">
+        <?php if ($isLoggedIn): ?>
+          <form id="registerForm" method="POST" action="register.php">
+            <!-- Hidden input for event_id -->
+            <input type="hidden" name="event_id" id="event_id">
+
+            <div class="mb-3">
+              <label for="name" class="form-label text-dark">Full Name</label>
+              <input type="text" class="form-control" id="name" name="name" required placeholder="Enter your name">
+            </div>
+            <div class="mb-3">
+              <label for="age" class="form-label text-dark">Age</label>
+              <input type="number" class="form-control" id="age" name="age" required placeholder="Enter your age">
+            </div>
+            <div class="mb-3">
+              <label for="phone" class="form-label text-dark">Phone</label>
+              <input type="text" class="form-control" id="phone" name="phone" required placeholder="Enter your phone">
+            </div>
+            <div class="mb-3">
+              <label for="email" class="form-label text-dark">Email Address</label>
+              <input type="email" class="form-control" id="email" name="email" required placeholder="Enter your email">
+            </div>
+            <button type="submit" class="btn bg-warning text-dark w-100">Submit Registration</button>
+          </form>
+        <?php else: ?>
+          <p class="text-center">You must be logged in to register.</p>
+          <p class="text-center"><a href="login.php">Login here</a> to continue.</p>
+        <?php endif; ?>
+      </div>
+    </div>
   </div>
 </div>
+
 
 <script>
     // Wait until the DOM is fully loaded
