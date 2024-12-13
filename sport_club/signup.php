@@ -1,31 +1,3 @@
-<?php
-// Include the database connection file
-include('backend/db_connection.php'); // Corrected path
-
-// Handle form submission
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Retrieve form data
-    $name = $_POST['name'];
-    $email = $_POST['email'];
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT); // Hash the password
-
-    // SQL query to insert new user into the database
-    $sql = "INSERT INTO users (name, email, password, created_at, updated_at) 
-            VALUES ('$name', '$email', '$password', NOW(), NOW())";
-
-    // Execute query and handle the result
-    if ($conn->query($sql) === TRUE) {
-        // Redirect to home.php
-        header('Location: home.php');
-        exit(); // Ensure no further code is executed after redirection
-    } else {
-        echo "Error: " . $sql . "<br>" . $conn->error;
-    }
-}
-?>
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -43,8 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="container d-flex justify-content-center align-items-center vh-100">
         <div class="card p-4 shadow" style="max-width: 500px; width: 100%;">
             <h2 class="text-center mb-4">Sign Up</h2>
+            
             <!-- Sign Up Form -->
-            <form id="signUpForm" method="POST">
+            <form id="signUpForm" method="POST" action="signupaction.php">
                 <div class="mb-3">
                     <label for="name" class="form-label">Full Name</label>
                     <input type="text" class="form-control" id="name" name="name" placeholder="Enter your full name" required>
@@ -59,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
                 <div class="mb-3">
                     <label for="confirmPassword" class="form-label">Confirm Password</label>
-                    <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm your password" required>
+                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
                 </div>
                 <!-- Terms and Conditions -->
                 <div class="form-check mb-3">
@@ -69,6 +42,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <!-- Sign Up Button -->
                 <button type="submit" class="btn btn-dark w-100 mb-3">Sign Up</button>
             </form>
+            
+            <?php if (isset($error)) { echo "<p class='text-danger'>$error</p>"; } ?>
+            
             <hr>
             <!-- Already Have an Account -->
             <div class="text-center">
@@ -80,5 +56,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        $(document).on('submit', '#signUpForm', function(e) {
+            e.preventDefault(); // Prevent default form submission
+
+            $.ajax({
+                url: 'signupaction.php',
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function(response) {
+                    var res = JSON.parse(response); 
+                    if (res.success) {
+                        window.location.href = 'login.php'; 
+                    } else {
+                        alert('Failed to sign up: ' + res.error); 
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX error:', xhr, status, error); 
+                    alert('An error occurred. Please try again.');
+                }
+            });
+        });
+    </script>
 </body>
 </html>

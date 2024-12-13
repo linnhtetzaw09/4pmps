@@ -4,10 +4,10 @@ session_start();
 include('backend/db_connection.php');
 
 // Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
-}
+// if (!isset($_SESSION['user_id'])) {
+//     header("Location: login.php");
+//     exit();
+// }
 
 ?>
 
@@ -43,6 +43,9 @@ if (!isset($_SESSION['user_id'])) {
                 <li class="nav-item"><a href="news.php" class="nav-link">News & Announcements</a></li>
                 <li class="nav-item"><a href="about_us.php" class="nav-link">About Us</a></li>
                 <li class="nav-item"><a href="contact_us.php" class="nav-link">Contact Us</a></li>
+                <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1): ?>
+                    <li class="nav-item"><a href="./admindashboard/adminpanel.php" class="nav-link">Dashboard</a></li>
+                <?php endif; ?>
             </ul>
             <ul class="navbar-nav">
                 <?php if (isset($_SESSION['name'])): ?>
@@ -79,7 +82,7 @@ if (!isset($_SESSION['user_id'])) {
                     and training sessions across various sports.
                     Connect with like-minded athletes and enhance your skills.
                 </p>
-                <a href="signup.php" class="btn btn-warning btn-lg btn-jointheclub mb-3">Join the Club</a>
+                <a href="login.php" class="btn btn-warning btn-lg btn-jointheclub mb-3">Join the Club</a>
             </div>
             <img class="img-fluid w-50 d-none d-sm-block img-fluid rounded" src="img/sportclub.jpg" alt="Sports Club Image">
         </div>

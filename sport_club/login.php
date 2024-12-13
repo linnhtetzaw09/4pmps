@@ -1,8 +1,7 @@
 <?php
-include('backend/db_connection.php');
 
-// Start session to manage login state
 session_start();
+include('backend/db_connection.php');
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -32,7 +31,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_SESSION['name'] = $user['name'];
             $_SESSION['email'] = $user['email'];
 
-            // Redirect to dashboard or homepage
+            // Fetch and store the is_admin status in the session
+            $user_id = $user['id']; // Logged-in user's ID
+            $query = "SELECT is_admin FROM users WHERE id = ?";
+            $stmt = $conn->prepare($query);
+            $stmt->bind_param("i", $user_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $adminStatus = $result->fetch_assoc();
+
+            if ($adminStatus) {
+                $_SESSION['is_admin'] = $adminStatus['is_admin']; // Store admin status in session
+            }
+
+            // Redirect to the appropriate page
             header("Location: home.php");
             exit();
         } else {

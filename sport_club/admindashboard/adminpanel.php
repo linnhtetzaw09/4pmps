@@ -3,6 +3,11 @@ session_start();
 
 include('../backend/db_connection.php');
 
+if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] != 1) {
+    header('Location: ../home.php');
+    exit();
+}
+
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -40,13 +45,33 @@ if (!$result_users) {
     die("Error fetching users: " . $conn->error);
 }
 
-// Fetch all registrations from the registers table
-$query_registers = "SELECT id, name, phone, event_id, updated_at FROM registers";
-$result_registers = $conn->query($query_registers);
+$query_pending = "SELECT * FROM pending_registers";
+$result_pending = $conn->query($query_pending);
 
-if (!$result_registers) {
-    die("Error fetching registrations: " . $conn->error);
+$query_approved = "SELECT * FROM registers";
+$result_approved = $conn->query($query_approved);
+
+$pendingRegistrations = [];
+$approvedRegistrations = [];
+
+if ($result_pending->num_rows > 0) {
+    while ($row = $result_pending->fetch_assoc()) {
+        $pendingRegistrations[] = $row;
+    }
 }
+
+if ($result_approved->num_rows > 0) {
+    while ($row = $result_approved->fetch_assoc()) {
+        $approvedRegistrations[] = $row;
+    }
+}
+
+// Combine and sort the results
+$allRegistrations = array_merge($pendingRegistrations, $approvedRegistrations);
+usort($allRegistrations, function($a, $b) {
+    return strtotime($b['updated_at']) - strtotime($a['updated_at']);
+});
+
 
 
 ?>
@@ -101,11 +126,14 @@ if (!$result_registers) {
         </button>
         <div class="collapse navbar-collapse" id="navmenu">
             <ul class="navbar-nav mx-auto">
-                <li class="nav-item"><a href="home.php" class="nav-link active">Home</a></li>
-                <li class="nav-item"><a href="eventsDetails.php" class="nav-link">Event Details</a></li>
-                <li class="nav-item"><a href="news.php" class="nav-link">News & Announcements</a></li>
-                <li class="nav-item"><a href="about_us.php" class="nav-link">About Us</a></li>
-                <li class="nav-item"><a href="contact_us.php" class="nav-link">Contact Us</a></li>
+                <li class="nav-item"><a href="../home.php" class="nav-link active">Home</a></li>
+                <li class="nav-item"><a href="../eventsDetails.php" class="nav-link">Event Details</a></li>
+                <li class="nav-item"><a href="../news.php" class="nav-link">News & Announcements</a></li>
+                <li class="nav-item"><a href="../about_us.php" class="nav-link">About Us</a></li>
+                <li class="nav-item"><a href="../contact_us.php" class="nav-link">Contact Us</a></li>
+                <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1): ?>
+                    <li class="nav-item"><a href="adminpanel.php" class="nav-link">Dashboard</a></li>
+                <?php endif; ?>
             </ul>
             <ul class="navbar-nav">
                 <?php if (isset($_SESSION['name'])): ?>
@@ -115,13 +143,13 @@ if (!$result_registers) {
                             <span style="margin-left: 10px;"><?php echo htmlspecialchars($_SESSION['name']); ?></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li><a href="editProfile.php" class="dropdown-item">Edit Profile</a></li>
-                            <li><a href="logout.php" class="dropdown-item">Logout</a></li>
+                            <li><a href="../editProfile.php" class="dropdown-item">Edit Profile</a></li>
+                            <li><a href="../logout.php" class="dropdown-item">Logout</a></li>
                         </ul>
                     </li>
                 <?php else: ?>
                    <li class="nav-item">
-                        <a href="login.php" class="nav-link">
+                        <a href="../login.php" class="nav-link">
                             <i class="bi bi-person-circle align-icon" style="font-size: 1.5rem;"></i> Login
                         </a>
                     </li>
@@ -257,11 +285,13 @@ if (!$result_registers) {
                                             <td><?php echo htmlspecialchars($user['preferred_sport']); ?></td>
                                             <td><?php echo htmlspecialchars($user['skill_level']); ?></td>
                                             <td>
-                                                <button type="button" class="btn btn-sm btn-primary btn-actions" 
-                                                    data-bs-toggle="modal" data-bs-target="#viewMemberModal">
-                                                    View
+                                                <button type="button" class="btn btn-sm btn-primary view-btn" 
+                                                    data-bs-toggle="modal" data-bs-target="#viewMemberModal" data-id="<?= $user['id']; ?>">
+                                                    <i class="bi bi-eye"></i> View
                                                 </button>
-                                                <button class="btn btn-sm btn-danger btn-actions">Remove</button>
+                                                <button class="btn btn-sm btn-danger remove-btn" data-id="<?= $user['id']; ?>">
+                                                    <i class="bi bi-trash"></i> Remove
+                                                </button>
                                             </td>
                                         </tr>
                                     <?php endwhile; ?>
@@ -277,48 +307,64 @@ if (!$result_registers) {
             </div>
 
             <!-- Manage registration Section -->
-            <div class="card mt-4 shadow">
-                <div class="card-header bg-warning text-dark text-center">
-                    <h5>Registration Table</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover text-center">
-                            <thead class="table-white">
-                                <tr>
-                                    <th>#</th>
-                                    <th>Name</th>
-                                    <th>Phone</th>
-                                    <th>Event Id</th>
-                                    <th>Registration Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php if ($result_registers->num_rows > 0): ?>
-                                    <?php while ($register = $result_registers->fetch_assoc()): ?>
-                                        <tr>
-                                            <td><?php echo htmlspecialchars($register['id']); ?></td>
-                                            <td><?php echo htmlspecialchars($register['name']); ?></td>
-                                            <td><?php echo htmlspecialchars($register['phone']); ?></td>
-                                            <td><?php echo htmlspecialchars($register['event_id']); ?></td>
-                                            <td>
-                                                <?php 
-                                                $dateTime = new DateTime($register['updated_at']);
-                                                echo $dateTime->format('d M h:i A');
-                                                ?>
-                                            </td>
-                                        </tr>
-                                    <?php endwhile; ?>
-                                <?php else: ?>
-                                    <tr>
-                                        <td colspan="5" class="text-center">No registrations found</td>
-                                    </tr>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+            <!-- Manage registration Section -->
+<div class="card mt-4 shadow">
+    <div class="card-header bg-warning text-dark text-center">
+        <h5>Approved/Rejected Registrations</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover text-center">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Event Id</th>
+                        <th>Time</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+    <?php if (count($allRegistrations) > 0): ?>
+        <?php foreach ($allRegistrations as $register): ?>
+            <tr>
+                <td><?= htmlspecialchars($register['id']); ?></td>
+                <td><?= htmlspecialchars($register['name']); ?></td>
+                <td><?= htmlspecialchars($register['phone']); ?></td>
+                <td><?= htmlspecialchars($register['event_id']); ?></td>
+                <td>
+                    <?php 
+                    $dateTime = new DateTime($register['updated_at']);
+                    echo $dateTime->format('d M h:i A');
+                    ?>
+                </td>
+                <td>
+                    <?php if ($register['status'] == 'approved'): ?>
+                        <span class="text-success">Approved</span>
+                    <?php else: ?>
+                        <div class="d-flex justify-content-center gap-2">
+                            <button class="btn btn-sm btn-primary btn-approve" data-id="<?= $register['id']; ?>">Approve</button>
+                            <button class="btn btn-sm btn-danger btn-reject" data-id="<?= $register['id']; ?>">Reject</button>
+                        </div>
+                    <?php endif; ?>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <tr>
+            <td colspan="6" class="text-center">No registrations found</td>
+        </tr>
+    <?php endif; ?>
+</tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
 
 </section>
 
@@ -468,11 +514,11 @@ if (!$result_registers) {
         <!-- Modal Body -->
         <div class="modal-body">
           <ul class="list-group">
-            <li class="list-group-item"><strong>Name:</strong> John Doe</li>
-            <li class="list-group-item"><strong>Email:</strong> johndoe@example.com</li>
-            <li class="list-group-item"><strong>Contact Info:</strong> 123-456-7890</li>
-            <li class="list-group-item"><strong>Preferred Sports:</strong> Soccer</li>
-            <li class="list-group-item"><strong>Skill Level:</strong> Intermediate</li>
+            <li class="list-group-item"><strong>Name:</strong> <span id="modal-name"></span></li>
+            <li class="list-group-item"><strong>Email:</strong> <span id="modal-email"></span></li>
+            <li class="list-group-item"><strong>Signup Time: </strong> <span id="modal-signup-time"></span></li>
+            <li class="list-group-item"><strong>Preferred Sports:</strong> <span id="modal-preferred-sport"></span></li>
+            <li class="list-group-item"><strong>Skill Level:</strong> <span id="modal-skill-level"></span></li>
           </ul>
         </div>
         <!-- Modal Footer -->
@@ -542,6 +588,107 @@ $(document).on('click', '.delete-btn', function() {
     }
 });
 
+$(document).on('click', '.view-btn', function() {
+    var userId = $(this).data('id');
+    
+    // Ajax request to fetch user data
+    $.ajax({
+        url: 'user_details.php',
+        method: 'GET',
+        data: { user_id: userId },
+        success: function(response) {
+            var user = JSON.parse(response); // Parse JSON response
+            $('#modal-name').text(user.name);
+            $('#modal-email').text(user.email);
+            
+            // Format Signup Time
+            var signupTime = new Date(user.updated_at);
+            var formattedDate = signupTime.toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            });
+            var formattedTime = signupTime.toLocaleTimeString('en-GB', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true // Display in 12-hour format
+            });
+
+            $('#modal-signup-time').text(formattedDate + ' ' + formattedTime);
+            $('#modal-preferred-sport').text(user.preferred_sport);
+            $('#modal-skill-level').text(user.skill_level);
+        },
+        error: function() {
+            alert('Error fetching user details.');
+        }
+    });
+});
+
+$(document).on('click', '.remove-btn', function() {
+    var userId = $(this).data('id'); // Get user ID from data-id attribute
+
+    if (confirm('Are you sure you want to remove this user?')) {
+        $.ajax({
+            url: 'delete_user.php', // Your PHP script to handle deletion
+            method: 'POST',
+            data: { user_id: userId },
+            success: function(response) {
+                if (response.success) {
+                    alert('User removed successfully.');
+                    location.reload(); // Reload the page to update the table
+                } else {
+                    alert('Failed to remove the user. Error: ' + response.error);
+                }
+            },
+            error: function() {
+                alert('An error occurred while processing the request.');
+            }
+        });
+    }
+});
+
+
+$(document).on('click', '.btn-approve', function () {
+    const registrationId = $(this).data('id');
+
+    $.ajax({
+        url: 'admin_actions.php',
+        type: 'POST',
+        data: { id: registrationId, action: 'approve' },
+        success: function (response) {
+            if (response.success) {
+                // Change text inside the td to Approved and disable buttons
+                $(this).closest('tr').find('td:last-child').html('<span class="text-success">Approved</span>');
+            } else {
+                alert('Error approving registration.');
+            }
+        },
+        error: function () {
+            alert('An error occurred.');
+        }
+    });
+});
+
+$(document).on('click', '.btn-reject', function () {
+    const registrationId = $(this).data('id');
+
+    $.ajax({
+        url: 'admin_actions.php',
+        type: 'POST',
+        data: { id: registrationId, action: 'reject' },
+        success: function (response) {
+            if (response.success) {
+                // Remove the row from the table
+                $(this).closest('tr').remove();
+            } else {
+                alert('Error rejecting registration.');
+            }
+        },
+        error: function () {
+            alert('An error occurred.');
+        }
+    });
+});
 
 
 
