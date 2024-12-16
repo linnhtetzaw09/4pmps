@@ -38,13 +38,15 @@ if (!$result_events) {
 } 
 
 // Fetch all users from the users table
-$query_users = "SELECT id, name, email, preferred_sport, skill_level FROM users";
+$query_users = "SELECT id, name, email, preferred_sport, skill_level, is_admin FROM users";
 $result_users = $conn->query($query_users);
 
 if (!$result_users) {
     die("Error fetching users: " . $conn->error);
 }
 
+$noadmin_users = "SELECT id, name, email, preferred_sport, skill_level, is_admin FROM users WHERE is_admin = 0";
+$login_users = $conn->query($noadmin_users);
 
 // Fetch registrations from pending_registers and registers
 $query_pending = "SELECT * FROM pending_registers";
@@ -112,7 +114,6 @@ foreach ($allRegistrations as $key => $register) {
             z-index: 1001;
         }
 
-/* Sidebar styles */
 .sidebar {
     position: fixed;
     top: 0;
@@ -121,7 +122,7 @@ foreach ($allRegistrations as $key => $register) {
     height: 100%;
     background-color: #042331;
     transition: all 0.5s ease;
-    z-index: 1000; /* Ensure the sidebar is above other content */
+    z-index: 1000; 
     overflow-y: auto;
 }
 
@@ -324,24 +325,28 @@ foreach ($allRegistrations as $key => $register) {
                                 </tr>
                             </thead>
                             <tbody>
+                            <tbody>
                                 <?php if ($result_users->num_rows > 0): ?>
+                                    <?php $counter = 1; ?>
                                     <?php while ($user = $result_users->fetch_assoc()): ?>
-                                        <tr>
-                                            <td><?php echo htmlspecialchars($user['id']); ?></td>
-                                            <td><?php echo htmlspecialchars($user['name']); ?></td>
-                                            <td><?php echo htmlspecialchars($user['email']); ?></td>
-                                            <td><?php echo htmlspecialchars($user['preferred_sport']); ?></td>
-                                            <td><?php echo htmlspecialchars($user['skill_level']); ?></td>
-                                            <td>
-                                                <button type="button" class="btn btn-sm btn-primary view-btn" 
-                                                    data-bs-toggle="modal" data-bs-target="#viewMemberModal" data-id="<?= $user['id']; ?>">
-                                                    <i class="bi bi-eye"></i> View
-                                                </button>
-                                                <button class="btn btn-sm btn-danger remove-btn" data-id="<?= $user['id']; ?>">
-                                                    <i class="bi bi-trash"></i> Remove
-                                                </button>
-                                            </td>
-                                        </tr>
+                                        <?php if ($user['is_admin'] == 1):  ?>
+                                            <tr>
+                                                <td><?php echo $counter++; ?></td>
+                                                <td><?php echo htmlspecialchars($user['name']); ?></td>
+                                                <td><?php echo htmlspecialchars($user['email']); ?></td>
+                                                <td><?php echo htmlspecialchars($user['preferred_sport']); ?></td>
+                                                <td><?php echo htmlspecialchars($user['skill_level']); ?></td>
+                                                <td>
+                                                    <button type="button" class="btn btn-sm btn-primary view-btn" 
+                                                        data-bs-toggle="modal" data-bs-target="#viewMemberModal" data-id="<?= $user['id']; ?>">
+                                                        <i class="bi bi-eye"></i> View
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger remove-btn" data-id="<?= $user['id']; ?>">
+                                                        <i class="bi bi-trash"></i> Remove
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        <?php endif; ?>
                                     <?php endwhile; ?>
                                 <?php else: ?>
                                     <tr>
@@ -349,6 +354,7 @@ foreach ($allRegistrations as $key => $register) {
                                     </tr>
                                 <?php endif; ?>
                             </tbody>
+
                         </table>
                     </div>
                 </div>
@@ -437,10 +443,11 @@ foreach ($allRegistrations as $key => $register) {
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php if ($result_users->num_rows > 0): ?>
-                                    <?php while ($user = $result_users->fetch_assoc()): ?>
+                                <?php if ($login_users->num_rows > 0): ?>
+                                    <?php $counter = 1; ?>
+                                    <?php while ($user = $login_users->fetch_assoc()): ?>
                                         <tr>
-                                            <td><?php echo htmlspecialchars($user['id']); ?></td>
+                                            <td><?php echo $counter++; ?></td>
                                             <td><?php echo htmlspecialchars($user['name']); ?></td>
                                             <td><?php echo htmlspecialchars($user['email']); ?></td>
                                             <td><?php echo htmlspecialchars($user['preferred_sport']); ?></td>
@@ -462,6 +469,7 @@ foreach ($allRegistrations as $key => $register) {
                                     </tr>
                                 <?php endif; ?>
                             </tbody>
+
                         </table>
                     </div>
                 </div>
@@ -708,18 +716,15 @@ document.addEventListener('DOMContentLoaded', function() {
         link.addEventListener('click', function(e) {
             e.preventDefault(); // Prevent default link behavior
             
-            // Remove 'active' class from all sections
             document.querySelectorAll('.section').forEach(section => {
                 section.classList.remove('active');
             });
 
-            // Add 'active' class to the clicked link's target section
             const target = this.dataset.target;
             document.getElementById(target).classList.add('active');
         });
     });
 });
-
 
 document.addEventListener('DOMContentLoaded', function () {
     // Select all edit buttons
