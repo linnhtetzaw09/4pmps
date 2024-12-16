@@ -98,7 +98,89 @@ foreach ($allRegistrations as $key => $register) {
           rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" 
           crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
     <style>
+
+        *{
+            list-style: none;
+            text-decoration: none !important;
+        }
+
+        .navbar, .footer{
+            z-index: 1001;
+        }
+
+/* Sidebar styles */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100%;
+    background-color: #042331;
+    transition: all 0.5s ease;
+    z-index: 1000; /* Ensure the sidebar is above other content */
+    overflow-y: auto;
+}
+
+.sidebar header {
+    font-size: 22px;
+    color: white;
+    text-align: center;
+    margin-top: 0;
+    line-height: 70px;
+    background: #063146;
+    user-select: none;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar ul li {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid black;
+}
+
+.sidebar ul li a {
+    display: block;
+    height: 65px;
+    line-height: 65px;
+    padding-left: 15px;
+    font-size: 18px;
+    color: white;
+    text-decoration: none;
+    transition: padding-left 0.3s ease;
+}
+
+.sidebar ul li:hover a {
+    padding-left: 30px;
+    background-color: #063146;
+}
+
+.sidebar ul li a i {
+    margin-right: 10px;
+}
+
+/* Section styles */
+.main-content {
+    margin-left: 250px; /* Adjust content next to the sidebar */
+    padding: 20px;
+    width: calc(100% - 250px); /* Dynamic content width */
+}
+
+.section {
+    display: none; /* Hide all sections by default */
+}
+
+.section.active {
+    display: block; /* Show the active section */
+}
+
 
         .tbody {
             display: table-row-group;
@@ -111,6 +193,10 @@ foreach ($allRegistrations as $key => $register) {
             vertical-align: middle;
         }
 
+        #dashboard{
+            padding-left: 200px;
+            padding-right: -100px !important;
+        }
 
         .btn-actions {
             width: 80px;
@@ -121,10 +207,11 @@ foreach ($allRegistrations as $key => $register) {
         }
 
         #registrationsChart {
-    max-width: 100%; /* Ensure the chart takes up full width */
-    height: auto; /* Maintain aspect ratio */
-    max-height: 400px; /* Set a maximum height to avoid large sizes on smaller screens */
-}
+            max-width: 100%; /* Ensure the chart takes up full width */
+            height: auto; /* Maintain aspect ratio */
+            max-height: 400px; /* Set a maximum height to avoid large sizes on smaller screens */
+        }
+
 
 
     </style>
@@ -172,10 +259,22 @@ foreach ($allRegistrations as $key => $register) {
     </div>
 </nav>
 
-    <!-- Dashboard Section -->
-<section class="py-5">
+<div class="sidebar">
+    <header>Admin Control</header>
+    <ul>
+        <li><a href="javascript:void(0)" class="side-link" data-target="admin"><i class="fas fa-users"></i>Admin Table</a></li>
+        <li><a href="javascript:void(0)" class="side-link" data-target="events"><i class="fas fa-table"></i>Events Table</a></li>
+        <li><a href="javascript:void(0)" class="side-link" data-target="users"><i class="fas fa-user"></i>Users Table</a></li>
+        <li><a href="javascript:void(0)" class="side-link" data-target="registration"><i class="fas fa-clipboard-list"></i>Registration Table</a></li>
+        <li><a href="javascript:void(0)" class="side-link" data-target="analysis"><i class="fas fa-chart-bar"></i>Analysis</a></li>
+    </ul>
+</div>
 
-        <div class="container">
+    <!-- Dashboard Section -->
+<section class="py-3">
+
+        <div id="dashboard" class="container">
+
             <h2 class="text-center mb-4">Admin Dashboard</h2>
             
             <!-- Analytics Cards -->
@@ -204,10 +303,59 @@ foreach ($allRegistrations as $key => $register) {
                         </div>
                     </div>
                 </div>
-            </div>    
+            </div>  
+            
+            <!-- Admin Table -->
+            <div id="admin" class="card mb-4 shadow section active">
+                <div class="card-header bg-warning text-dark text-center">
+                    <h5>All Admins</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Member Name</th>
+                                    <th>Email</th>
+                                    <th>Preferred Sport</th>
+                                    <th>Skill Level</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if ($result_users->num_rows > 0): ?>
+                                    <?php while ($user = $result_users->fetch_assoc()): ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($user['id']); ?></td>
+                                            <td><?php echo htmlspecialchars($user['name']); ?></td>
+                                            <td><?php echo htmlspecialchars($user['email']); ?></td>
+                                            <td><?php echo htmlspecialchars($user['preferred_sport']); ?></td>
+                                            <td><?php echo htmlspecialchars($user['skill_level']); ?></td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-primary view-btn" 
+                                                    data-bs-toggle="modal" data-bs-target="#viewMemberModal" data-id="<?= $user['id']; ?>">
+                                                    <i class="bi bi-eye"></i> View
+                                                </button>
+                                                <button class="btn btn-sm btn-danger remove-btn" data-id="<?= $user['id']; ?>">
+                                                    <i class="bi bi-trash"></i> Remove
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <?php endwhile; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="6" class="text-center">No members found</td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
             <!-- Manage Events -->
-            <div class="card mb-4 shadow">
+            <div id="events" class="card mb-4 shadow section">
                 <div class="card-header bg-warning text-dark text-center">
                     <h5>Manage Events</h5>
                 </div>
@@ -241,7 +389,7 @@ foreach ($allRegistrations as $key => $register) {
                                                 <?php
                                                 $time = new DateTime($event['time']);
                                                 echo $time->format('h:i A'); 
-                                             ?>
+                                                ?>
                                             </td>
                                             <td><?php echo htmlspecialchars($event['location']); ?></td>
                                             <td><?php echo htmlspecialchars($event['age_group']); ?></td>
@@ -271,7 +419,7 @@ foreach ($allRegistrations as $key => $register) {
             </div>
 
             <!-- Manage Members -->
-            <div class="card mb-4 shadow">
+            <div id="users" class="card mb-4 shadow section">
                 <div class="card-header bg-warning text-dark text-center">
                     <h5>Manage Members</h5>
                 </div>
@@ -320,7 +468,7 @@ foreach ($allRegistrations as $key => $register) {
             </div>
 
             <!-- Manage registration Section -->
-            <div class="card mt-4 shadow">
+            <div id="registration" class="card mt-4 shadow section">
                 <div class="card-header bg-warning text-dark text-center">
                     <h5>Approved/Rejected Registrations</h5>
                 </div>
@@ -371,19 +519,18 @@ foreach ($allRegistrations as $key => $register) {
                             </tbody>
                         </table>
                     </div>
-                </div>
             </div>
 
+        </div>
 </section>
 
-            <div class="container mb-5">
+            <div id="analysis" class="container mb-5 section">
                 <h1 class="text-center mb-3">Text U want to give title </h1>
                 <canvas id="registrationsChart"></canvas>
             </div>
 
-
   <!--footer -->
-  <footer class=" p-5 bg-dark text-white text-center position-relative">
+  <footer class="footer p-5 bg-dark text-white text-center position-relative">
     <div class="container">
         <p class="lead">Copyright &copy; 2024 GoSports. All Rights Reserved.</p>
         <a href="#" class="position-absolute bottom-0 end-0 p-5 text-warning">
@@ -552,6 +699,27 @@ foreach ($allRegistrations as $key => $register) {
 
 
       <script>
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Get all side-links
+    const navLinks = document.querySelectorAll('.side-link');
+    
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault(); // Prevent default link behavior
+            
+            // Remove 'active' class from all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Add 'active' class to the clicked link's target section
+            const target = this.dataset.target;
+            document.getElementById(target).classList.add('active');
+        });
+    });
+});
+
 
 document.addEventListener('DOMContentLoaded', function () {
     // Select all edit buttons

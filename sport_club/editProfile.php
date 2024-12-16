@@ -142,6 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </div>
 </nav>
+
   <!-- Profile Header -->
   <header class="py-5 bg-light text-center">
     <h1>Welcome, <span class="text-warning"><?php echo $user['name']; ?></span></h1>
