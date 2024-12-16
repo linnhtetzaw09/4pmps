@@ -30,7 +30,7 @@ $result_total_users = $conn->query($query_total_users);
 $total_users = $result_total_users->fetch_assoc()['total_users'];
 
 // Fetch all events from the events table
-$query_events = "SELECT id, event_name, date, time, location, activities, age_group, description FROM events";
+$query_events = "SELECT id, event_name, date, time, location, activities, age_group, description, image_url FROM events";
 $result_events = $conn->query($query_events);
 
 if (!$result_events) {
@@ -582,6 +582,10 @@ foreach ($allRegistrations as $key => $register) {
                             <input type="text" class="form-control" id="ageGroup" name="ageGroup" required>
                         </div>
                         <div class="mb-3">
+                            <label for="image" class="form-label">Image</label>
+                            <input type="file" class="form-control" id="image" name="image" required>
+                        </div>
+                        <div class="mb-3">
                             <label for="eventDescription" class="form-label">Description</label>
                             <textarea class="form-control" id="eventDescription" name="eventDescription" rows="3" required></textarea>
                         </div>
@@ -626,6 +630,10 @@ foreach ($allRegistrations as $key => $register) {
                         <div class="mb-3">
                             <label for="editAgeGroup" class="form-label">Age Group</label>
                             <input type="text" class="form-control" id="editAgeGroup" name="editAgeGroup" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editImage" class="form-label">Image</label>
+                            <input type="file" class="form-control" id="editImage" name="editImage" required>
                         </div>
                         <div class="mb-3">
                             <label for="editEventDescription" class="form-label">Description</label>
@@ -745,6 +753,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     document.getElementById('editEventLocation').value = data.location;
                     document.getElementById('editActivities').value = data.activities;
                     document.getElementById('editAgeGroup').value = data.age_group;
+                    document.getElementById('editImage').value = data.image_url;
                     document.getElementById('editEventDescription').value = data.description;
                 })
                 .catch(error => console.error('Error fetching event data:', error));

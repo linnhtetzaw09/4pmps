@@ -14,6 +14,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $ageGroup = $_POST['editAgeGroup'];
     $eventDescription = $_POST['editEventDescription'];
 
+    // Handle file upload
+    $target_dir = "../img";
+    $target_file = $target_dir . basename($_FILES["editImage"]["name"]);
+    $image_url = "";
+
+    // Check if file is uploaded
+    if (move_uploaded_file($_FILES["editImage"]["tmp_name"], $target_file)) {
+        $image_url = $target_file; // Save the file path to the database
+    } else {
+        echo "Error uploading the image.";
+        exit;
+    }
+
     // Prepare and execute the SQL query
     $stmt = $conn->prepare("UPDATE events SET 
         event_name = ?, 
@@ -22,9 +35,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         location = ?, 
         activities = ?, 
         age_group = ?, 
-        description = ?
+        description = ?, 
+        image_url = ? 
         WHERE id = ?");
-    $stmt->bind_param("sssssssi", $eventName, $eventDate, $eventTime, $eventLocation, $activities, $ageGroup, $eventDescription, $eventId);
+    $stmt->bind_param("ssssssssi", $eventName, $eventDate, $eventTime, $eventLocation, $activities, $ageGroup, $eventDescription, $image_url, $eventId);
 
     if ($stmt->execute()) {
         // Redirect back with success message
