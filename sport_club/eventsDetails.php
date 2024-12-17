@@ -1,14 +1,18 @@
 <?php
 session_start();
+include('backend/db_connection.php');
 
-// Check if user is logged in
-// if (!isset($_SESSION['user_id'])) {
-//     header("Location: login.php");
-//     exit();
-// }
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
 
-$isLoggedIn = isset($_SESSION['user_id']);
+// Query to fetch events
+$sql = "SELECT * FROM events";
+$result = $conn->query($sql);
 
+$isLoggedIn = isset($_SESSION['user_id']); 
+?>
 ?>
 
 <!DOCTYPE html>
@@ -80,270 +84,55 @@ $isLoggedIn = isset($_SESSION['user_id']);
   <?php endif; ?>
 
 
-<!-- Event 1 Section -->
-<section id="1" class="event-detail py-5" data-title="Annual Sports Fest 2024" data-date="2024-12-15" data-sport="Basketball" data-location="Mandalay Stadium" data-age-group="All Ages">
-  <div class="container">
-      <h3 class="text-center mb-4"> Mandalay Youth Football Cup</h3>
-      <div class="row">
-          <div class="col-lg-6 mb-4">
-              <img src="./img/football.jpg" class="img-fluid rounded" alt="Mandalay Youth Football Cup">
-          </div>
-          <div class="col-lg-6">
-              <h4>Event Details</h4>
-              <ul class="list-group list-group-flush">
-                  <li class="list-group-item">📅 Date: January 15, 2025</li>
-                  <li class="list-group-item">⏰ Time: 9:00 AM – 5:00 PM</li>
-                  <li class="list-group-item">📍 Location: Mandalar Thiri Stadium, Mandalay, Myanmar</li>
-                  <li class="list-group-item">🏆 Activities: Group-stage matches, Skills challenge,
-                                                  Award ceremony for top scorers.</li>
-                  <li class="list-group-item">👥 Age Group: 12–18 years</li>
-              </ul>
-              <h4 class="mt-4">About the Event</h4>
-              <p>
-                This annual football tournament is designed to showcase the talent of young players across Mandalay. 
-                Teams will compete in group stages and knockout rounds, culminating in an exciting final match.
-              </p>
-              <!-- Register Button -->
-              <button type="button" class="btn  bg-warning text-dark mt-3 register-btn" data-event-id="1" data-bs-toggle="modal" data-bs-target="#registerModal" 
-                      data-title="Mandalay Youth Football Cup">
-                  Register
-              </button>
-          </div>
-      </div>
-  </div>
-</section>
-
-
-<!-- Event 2 Section -->
-<section id="2" class="event-detail py-5 bg-light" data-title="Basketball Championship" data-date="2025-01-10" data-sport="Basketball" data-location="Central Sports Arena" data-age-group="18-30">
-  <div class="container">
-      <h3 class="text-center text-dark mb-4"> Basketball League</h3>
-      <div class="row">
-          <div class="col-lg-6 mb-4">
-              <img src="./img/basketball.jpg" class="img-fluid rounded" alt="Basketball League">
-          </div>
-          <div class="col-lg-6">
-              <h4 class="text-dark">Event Details</h4>
-              <ul class="list-group list-group-flush">
-                  <li class="list-group-item">📅 Date: February 20, 2025</li>
-                  <li class="list-group-item">⏰ Time: 10:00 AM – 6:00 PM</li>
-                  <li class="list-group-item">📍 Location:  Aung Myay Thar Zan Indoor Stadium, Mandalay, Myanmar</li>
-                  <li class="list-group-item">🏆 Activities: 5v5 basketball matches, Three-point shooting contest.
-                  </li>
-                  <li class="list-group-item">👥 Age Group: 15–25 years</li>
-              </ul>
-              <h4 class="mt-4 text-dark">About the Event</h4>
-              <p class="text-dark">
-                This is a city-level basketball league featuring talented players and teams.
-                 The event is open to fans who want to cheer for their favorite teams.
-              </p>
-              <!-- Register Button -->
-              <button type="button" class="btn bg-warning text-dark mt-3 register-btn" data-event-id="2" data-bs-toggle="modal" data-bs-target="#registerModal" 
-                      data-title="Basketball League">
-                  Register
-              </button>
-          </div>
-      </div>
+<!-- Events Section -->
+<?php if ($result->num_rows > 0): ?>
+    <?php while ($event = $result->fetch_assoc()): ?>
+        <section id="<?php echo htmlspecialchars($event['id']); ?>" 
+            class="event-detail py-5 <?php echo $event['id'] % 2 === 0 ? 'bg-light' : ''; ?>" 
+            data-title="<?php echo htmlspecialchars($event['event_name']); ?>" 
+            data-date="<?php echo htmlspecialchars($event['date']); ?>" 
+            data-time="<?php echo htmlspecialchars($event['time']); ?>" 
+            data-location="<?php echo htmlspecialchars($event['location']); ?>" 
+            data-age-group="<?php echo htmlspecialchars($event['age_group']); ?>">
+            <div class="container">
+                <h3 class="text-center <?php echo $event['id'] % 2 === 0 ? 'text-dark' : 'text-white'; ?> mb-4">
+                    <?php echo htmlspecialchars($event['event_name']); ?>
+                </h3>
+                <div class="row">
+                    <div class="col-lg-6 mb-4">
+                      <img src="<?php echo './uploadImages/' . htmlspecialchars($event['image_url']); ?>" class="img-fluid rounded" alt="<?php echo htmlspecialchars($event['event_name']); ?>">
+                    </div>
+                    <div class="col-lg-6">
+                        <h4 class="<?php echo $event['id'] % 2 === 0 ? 'text-dark' : 'text-white'; ?>">Event Details</h4>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">📅 Date: <?php echo htmlspecialchars($event['date']); ?></li>
+                            <li class="list-group-item">⏰ Time: <?php echo htmlspecialchars($event['time']); ?></li>
+                            <li class="list-group-item">📍 Location: <?php echo htmlspecialchars($event['location']); ?></li>
+                            <li class="list-group-item">🏆 Activities: <?php echo htmlspecialchars($event['activities']); ?></li>
+                            <li class="list-group-item">👥 Age Group: <?php echo htmlspecialchars($event['age_group']); ?></li>
+                        </ul>
+                        <h4 class="mt-4 <?php echo $event['id'] % 2 === 0 ? 'text-dark' : 'text-white'; ?>">About the Event</h4>
+                        <p class="<?php echo $event['id'] % 2 === 0 ? 'text-dark' : 'text-white'; ?>">
+                            <?php echo htmlspecialchars($event['description']); ?>
+                        </p>
+                        <!-- Register Button -->
+                        <button type="button" class="btn bg-warning text-dark mt-3 register-btn" data-event-id="<?php echo htmlspecialchars($event['id']); ?>" 
+                                data-bs-toggle="modal" data-bs-target="#registerModal" 
+                                data-title="<?php echo htmlspecialchars($event['event_name']); ?>">
+                            Register
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    <?php endwhile; ?>
+<?php else: ?>
+    <div class="container text-center py-5">
+        <h3 class="text-warning">No events available at the moment. Please check back later!</h3>
     </div>
-</section>
+<?php endif; ?>
 
-<!-- Event 3 Section -->
-<section id="3" class="event-detail py-5" data-title="Annual Sports Fest 2024" data-date="2024-12-15" data-sport="Basketball" data-location="Mandalay Stadium" data-age-group="All Ages">
-  <div class="container">
-      <h3 class="text-center mb-4"> Swimming Open</h3>
-      <div class="row">
-          <div class="col-lg-6 mb-4">
-              <img src="./img/swimming.jpg" class="img-fluid rounded" alt="Swimming Open">
-          </div>
-          <div class="col-lg-6">
-              <h4>Event Details</h4>
-              <ul class="list-group list-group-flush">
-                  <li class="list-group-item">📅 Date: March 5, 2025</li>
-                  <li class="list-group-item">⏰ Time: 8:00 AM – 4:00 PM</li>
-                  <li class="list-group-item">📍 Location: Olympic Swimming Pool, Mandalay, Myanmar</li>
-                  <li class="list-group-item">🏆 Activities: 50m, 100m, and 200m races, Team relay events.</li>
-                  <li class="list-group-item">👥 Age Group: 10–30 years</li>
-              </ul>
-              <h4 class="mt-4">About the Event</h4>
-              <p>
-                A thrilling swimming competition featuring freestyle, breaststroke, backstroke, and relay races. 
-                Open to swimmers of all levels.
 
-              </p>
-              <!-- Register Button -->
-              <button type="button" class="btn  bg-warning text-dark mt-3 register-btn" data-event-id="3" data-bs-toggle="modal" data-bs-target="#registerModal" 
-                      data-title="Swimming Open">
-                  Register
-              </button>
-          </div>
-      </div>
-  </div>
-</section>
-
-<!-- Event 4 Section -->
-<section id="4" class="event-detail py-5 bg-light" data-title="Basketball Championship" data-date="2025-01-10" data-sport="Basketball" data-location="Central Sports Arena" data-age-group="18-30">
-  <div class="container">
-      <h3 class="text-center text-dark mb-4"> Shuttle Masters</h3>
-      <div class="row">
-          <div class="col-lg-6 mb-4">
-              <img src="./img/badminton.jpg" class="img-fluid rounded" alt="Shuttle Masters">
-          </div>
-          <div class="col-lg-6">
-              <h4 class="text-dark">Event Details</h4>
-              <ul class="list-group list-group-flush">
-                  <li class="list-group-item">📅 Date: March 22, 2025</li>
-                  <li class="list-group-item">⏰ Time:  9:00 AM - 7:00 PM</li>
-                  <li class="list-group-item">📍 Location: Chan Mya Thar Si Sports Complex, Mandalay, Myanmar</li>
-                  <li class="list-group-item">🏆 Activities: Singles and doubles matches, Winners' award ceremony.
-                  </li>
-                  <li class="list-group-item">👥 Age Group: 18-40 years</li>
-              </ul>
-              <h4 class="mt-4 text-dark">About the Event</h4>
-              <p class="text-dark">
-                A one-day badminton event where singles and doubles players compete for
-                 trophies and bragging rights.
-              </p>
-              <!-- Register Button -->
-              <button type="button" class="btn bg-warning text-dark mt-3 register-btn" data-event-id="4" data-bs-toggle="modal" data-bs-target="#registerModal" 
-                      data-title="Shuttle Masters">
-                  Register
-              </button>
-          </div>
-      </div>
-    </div>
-</section>
-
-<!-- Event 5 Section -->
-<section id="5" class="event-detail py-5" data-title="Annual Sports Fest 2024" data-date="2024-12-15" data-sport="Basketball" data-location="Mandalay Stadium" data-age-group="All Ages">
-  <div class="container">
-      <h3 class="text-center mb-4"> Half Marathon</h3>
-      <div class="row">
-          <div class="col-lg-6 mb-4">
-              <img src="./img/marathon.jpg" class="img-fluid rounded" alt="Half Marathon">
-          </div>
-          <div class="col-lg-6">
-              <h4>Event Details</h4>
-              <ul class="list-group list-group-flush">
-                  <li class="list-group-item">📅 Date:  April 10, 2025</li>
-                  <li class="list-group-item">⏰ Time: 5:30 AM - 11:30 AM</li>
-                  <li class="list-group-item">📍 Location: Mandalay Royal Palace Circuit, Mandalay, Myanmar</li>
-                  <li class="list-group-item">🏆 Activities: Warm-up yoga session, 21km marathon race,
-                                                  Post-race refreshments.</li>
-                  <li class="list-group-item">👥 Age Group: 18–45 years</li>
-              </ul>
-              <h4 class="mt-4">About the Event</h4>
-              <p>
-                A scenic half-marathon event that takes runners through the historic landmarks of Mandalay.
-              </p>
-              <!-- Register Button -->
-              <button type="button" class="btn  bg-warning text-dark mt-3 register-btn" data-event-id="5" data-bs-toggle="modal" data-bs-target="#registerModal" 
-                      data-title="Half Marathon">
-                  Register
-              </button>
-          </div>
-      </div>
-  </div>
-</section>
-
-<!-- Event 6 Section -->
-<section id="6" class="event-detail py-5 bg-light" data-title="Basketball Championship" data-date="2025-01-10" data-sport="Basketball" data-location="Central Sports Arena" data-age-group="18-30">
-  <div class="container">
-      <h3 class="text-center text-dark mb-4">Cyclists Challenge</h3>
-      <div class="row">
-          <div class="col-lg-6 mb-4">
-              <img src="./img/cyclist.jpg" class="img-fluid rounded" alt="Cyclists Challenge">
-          </div>
-          <div class="col-lg-6">
-              <h4 class="text-dark">Event Details</h4>
-              <ul class="list-group list-group-flush">
-                  <li class="list-group-item">📅 Date: April 30, 2025</li>
-                  <li class="list-group-item">⏰ Time: 6:00 AM - 12:00 PM</li>
-                  <li class="list-group-item">📍 Location: Pyin Oo Lwin Road, Mandalay, Myanmar</li>
-                  <li class="list-group-item">🏆 Activities: 40km and 60km race options, Award ceremony for top finishers.
-                  </li>
-                  <li class="list-group-item">👥 Age Group: 16-35 years</li>
-              </ul>
-              <h4 class="mt-4 text-dark">About the Event</h4>
-              <p class="text-dark">
-                A challenging yet scenic bicycle race featuring a mix of urban and rural routes. 
-                Cyclists will ride through picturesque surroundings.
-              </p>
-              <!-- Register Button -->
-              <button type="button" class="btn bg-warning text-dark mt-3 register-btn" data-event-id="6" data-bs-toggle="modal" data-bs-target="#registerModal" 
-                      data-title="Cyclists Challenge">
-                  Register
-              </button>
-          </div>
-      </div>
-    </div>
-</section>
-
-<!-- Event 7 Section -->
-<section id="7" class="event-detail py-5" data-title="Annual Sports Fest 2024" data-date="2024-12-15" data-sport="Basketball" data-location="Mandalay Stadium" data-age-group="All Ages">
-  <div class="container">
-      <h3 class="text-center mb-4"> Mandalay Hills Hiking Festival</h3>
-      <div class="row">
-          <div class="col-lg-6 mb-4">
-              <img src="./img/hiking.jpg" class="img-fluid rounded" alt="Mandalay Hills Hiking Festival">
-          </div>
-          <div class="col-lg-6">
-              <h4>Event Details</h4>
-              <ul class="list-group list-group-flush">
-                  <li class="list-group-item">📅 Date: May 18, 2025</li>
-                  <li class="list-group-item">⏰ Time: 7:00 AM - 3:00 PM</li>
-                  <li class="list-group-item">📍 Location:  Mandalay Hill Trails, Mandalay, Myanmar</li>
-                  <li class="list-group-item">🏆 Activities: Nature photography contest, 
-                                                  Refreshments and networking at the summit.</li>
-                  <li class="list-group-item">👥 Age Group: 15–50 years</li>
-              </ul>
-              <h4 class="mt-4">About the Event</h4>
-              <p>
-                An adventurous hiking experience across the beautiful Mandalay Hill Trails. 
-                Suitable for both amateur and seasoned hikers.
-
-              </p>
-              <!-- Register Button -->
-              <button type="button" class="btn  bg-warning text-dark mt-3 register-btn" data-event-id="7" data-bs-toggle="modal" data-bs-target="#registerModal" 
-                      data-title="Mandalay Hills Hiking Festival">
-                  Register
-              </button>
-          </div>
-      </div>
-  </div>
-</section>
-
-<!-- Event 8 Section -->
-<section id="8" class="event-detail py-5 bg-light" data-title="Basketball Championship" data-date="2025-01-10" data-sport="Basketball" data-location="Central Sports Arena" data-age-group="18-30">
-  <div class="container">
-      <h3 class="text-center text-dark mb-4"> Ping Pong Championship</h3>
-      <div class="row">
-          <div class="col-lg-6 mb-4">
-              <img src="./img/table_tennis.jpg" class="img-fluid rounded" alt="Ping Pong Championship">
-          </div>
-          <div class="col-lg-6">
-              <h4 class="text-dark">Event Details</h4>
-              <ul class="list-group list-group-flush">
-                  <li class="list-group-item">📅 Date: June 7, 2025</li>
-                  <li class="list-group-item">⏰ Time: 9:00 AM - 5:00 PM</li>
-                  <li class="list-group-item">📍 Location: Chanayethazan Table Tennis Hall, Mandalay, Myanmar</li>
-                  <li class="list-group-item">🏆 Activities: Singles and doubles matches, 
-                    Closing ceremony with trophies and certificates.</li>
-                  <li class="list-group-item">👥 Age Group: 12-28 years</li>
-              </ul>
-              <h4 class="mt-4 text-dark">About the Event</h4>
-              <p class="text-dark">
-                A highly competitive table tennis tournament aimed at bringing 
-                together the best players in the region.
-              </p>
-              <!-- Register Button -->
-              <button type="button" class="btn bg-warning text-dark mt-3 register-btn" data-event-id="8" data-bs-toggle="modal" data-bs-target="#registerModal" 
-                      data-title="Ping Pong Championship">
-                  Register
-              </button>
-          </div>
-      </div>
-    </div>
-</section>
 
 <!-- Final Reminder Section -->
 <section class="text-center py-5">

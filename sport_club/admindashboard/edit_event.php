@@ -15,16 +15,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $eventDescription = $_POST['editEventDescription'];
 
     // Handle file upload
-    $target_dir = "../img";
-    $target_file = $target_dir . basename($_FILES["editImage"]["name"]);
-    $image_url = "";
-
-    // Check if file is uploaded
-    if (move_uploaded_file($_FILES["editImage"]["tmp_name"], $target_file)) {
-        $image_url = $target_file; // Save the file path to the database
-    } else {
-        echo "Error uploading the image.";
-        exit;
+    $target_dir = "../uploadImages/";
+    $image_url = $_POST['existingImageUrl']; 
+    
+    if (!empty($_FILES["editImage"]["name"])) {
+        $target_file = $target_dir . basename($_FILES["editImage"]["name"]);
+        if (move_uploaded_file($_FILES["editImage"]["tmp_name"], $target_file)) {
+            $image_url = basename($_FILES["editImage"]["name"]); // Save the new file name
+        } else {
+            echo "Error uploading the image.";
+            exit;
+        }
     }
 
     // Prepare and execute the SQL query

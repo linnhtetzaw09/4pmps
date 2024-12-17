@@ -435,7 +435,7 @@ foreach ($allRegistrations as $key => $register) {
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Member Name</th>
+                                    <th>Admin Name</th>
                                     <th>Email</th>
                                     <th>Preferred Sport</th>
                                     <th>Skill Level</th>
